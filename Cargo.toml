@@ -6,17 +6,19 @@ authors = ["Quiet-Clicking-Sounds <55921097+Quiet-Clicking-Sounds@users.noreply.
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
+path = "src/lib.rs"
 name = "ndarray_threaded_window"
 crate-type = ["cdylib"]
 
-[dependencies.pyo3]
-version = "0.17.3"
-features = ["extension-module"]
+
+
 
 [dependencies]
+pyo3 = {version = "0.17.3", features = ["extension-module"]}
 ndarray=  "0.15.6"
 numpy = "0.17.2"
 num-traits = "0.2.15"
+
 
 [dev-dependencies]
 rand = "0.8.5"

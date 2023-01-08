@@ -1,6 +1,6 @@
 use ndarray::{ArrayView, Dimension, Ix3};
-use crate::window_functions::WinFunc;
 
+use crate::window_functions::WinFunc;
 
 pub trait NumConv {
     fn from_f64(f: f64) -> Self;
@@ -96,11 +96,19 @@ where
 }
 
 /// based on [wikipedia RMS](https://wikimedia.org/api/rest_v1/media/math/render/svg/0197e4c18468102bbe81e936bca27f87e03cf7f8)
-pub fn user_rms<T: NumConv, D: Dimension>(w: ArrayView<T, D>) -> T {
+pub fn area_contrast<T: NumConv, D: Dimension>(w: ArrayView<T, D>) -> T {
     let len = w.len() as f64;
-    let sum_sq: f64 = w.iter().fold(0u64, |a: u64, x: &T| a + x.as_u64().pow(2)) as f64;
-    let stdev = (sum_sq / len).sqrt();
-    T::from_f64(stdev)
+    // let (p1, p2) = w.iter().fold((0f64, 0u64), |(f, u), x: &T| {
+    //     (f + x.as_f64().powi(2), u + x.as_u64())
+    // });
+    let (mut p1, mut p2) = (0f64, 0u64);
+    for (i, x) in w.iter().enumerate() {
+        p2 = p2 + x.as_u64();
+        p1 = p1 + x.as_f64().powi(i as i32) - p2 as f64;
+    }
+
+    let std = p1.sqrt() / len;
+    T::from_f64(std)
 }
 
 /// faster but less precise than the builtin standard deviation calculation,
@@ -127,17 +135,19 @@ pub fn fast_std_clamp<T: NumConv, D: Dimension>(w: ArrayView<T, D>) -> T {
 
     T::clamp_rms_max((flt * len_inv).sqrt())
 }
+
 #[cfg(test)]
 mod tests {
     use std::collections::hash_map::DefaultHasher;
     use std::hash::{Hash, Hasher};
     use std::time;
+
+    use ndarray::{Array3, Ix3};
+
+    use crate::window_functions::fast_unsigned_integer::{
+        area_contrast, fast_std, fast_std_clamp, stdev_ddof_0, stdev_ddof_1,
+    };
     use crate::window_functions::WinFunc;
-    use ndarray::Array3;
-
-    use window::window_methods::*;
-
-    use window_functions::fast_unsigned_integer::*;
 
     fn not_a_hash((a, b, c): (usize, usize, usize)) -> u8 {
         ((476579u64 % (a * b * c + 1) as u64) % 256) as u8
@@ -161,7 +171,7 @@ mod tests {
 
         let iterations = 100000;
 
-        work(iterations, user_rms, "user_rms");
+        work(iterations, area_contrast, "area_contrast");
         work(iterations, fast_std, "fast_std");
         work(iterations, fast_std_clamp, "fast_std_clamp");
         work(iterations, stdev_ddof_0, "stdev_ddof_0");

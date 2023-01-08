@@ -1,13 +1,9 @@
-// #![feature(specialization)]
-
 use ndarray::{ArrayView1, Ix1};
 use numpy::{PyArray3, PyReadonlyArray1, PyReadonlyArray3, ToPyArray};
-use pyo3::prelude::pyfunction;
-use pyo3::prelude::pymodule;
-use pyo3::prelude::PyModule;
-use pyo3::prelude::PyResult;
-use pyo3::prelude::Python;
-use pyo3::{pyclass, pymethods, wrap_pyfunction, wrap_pymodule, IntoPy, PyObject};
+use pyo3::{
+    prelude::pyfunction, prelude::pymodule, prelude::PyModule, prelude::PyResult, prelude::Python,
+    pyclass, pymethods, wrap_pyfunction, wrap_pymodule, IntoPy, PyObject,
+};
 
 use threading::{thread_apply_over_window, WindowShape};
 
@@ -27,6 +23,12 @@ fn ndarray_threaded_window(_py: Python, m: &PyModule) -> PyResult<()> {
     m.add_wrapped(wrap_pymodule!(base_functions))?;
     m.add_function(wrap_pyfunction!(apply_window, m)?)?;
 
+    m.add("fn_area_contrast", 0)?;
+    m.add("fn_fast_std", 1)?;
+    m.add("fn_fast_std_clamp", 2)?;
+    m.add("fn_stdev_ddof_0", 3)?;
+    m.add("fn_stdev_ddof_1", 4)?;
+
     Ok(())
 }
 
@@ -42,7 +44,7 @@ fn apply_window<'py>(
 ) -> &'py PyArray3<u8> {
     let window_type = WindowShape::Triple(win_size_x, win_size_y, win_size_z);
     let m = match method {
-        0 => window_functions::user_rms,
+        0 => window_functions::area_contrast,
         1 => window_functions::fast_std,
         2 => window_functions::fast_std_clamp,
         3 => window_functions::stdev_ddof_0,
@@ -55,6 +57,7 @@ fn apply_window<'py>(
 
 #[pymodule]
 fn base_functions(_py: Python, m: &PyModule) -> PyResult<()> {
+    m.add("__version__", env!("CARGO_PKG_VERSION"))?;
     m.add(
         "__description__",
         "non-threaded, non-windowed methods that can be called on arrays",
@@ -87,10 +90,10 @@ fn base_functions(_py: Python, m: &PyModule) -> PyResult<()> {
         apply_func(arr.as_array(), window_functions::fast_std_clamp).into_py(py)
     }
 
-    m.add_function(wrap_pyfunction!(user_rms, m)?)?;
+    m.add_function(wrap_pyfunction!(area_contrast, m)?)?;
     #[pyfunction]
-    fn user_rms(py: Python, arr: PyReadonlyArray1<u8>) -> PyObject {
-        apply_func(arr.as_array(), window_functions::user_rms).into_py(py)
+    fn area_contrast(py: Python, arr: PyReadonlyArray1<u8>) -> PyObject {
+        apply_func(arr.as_array(), window_functions::area_contrast).into_py(py)
     }
 
     Ok(())
