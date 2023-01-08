@@ -5,6 +5,6 @@ Cargo.lock
 *.egg-info
 *.pyc
 *.so
-/python/
 /venv/
 /.idea
+!/target/wheels
