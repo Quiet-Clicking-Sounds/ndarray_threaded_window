@@ -8,3 +8,5 @@ Cargo.lock
 /venv/
 /.idea
 !/target/wheels
+/python/ndarray_threaded_window/*.pyd
+/examples/no_pub.py
