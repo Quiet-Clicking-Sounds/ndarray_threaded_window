@@ -1,0 +1,9 @@
+[tool.maturin]
+python-source = "python"
+[project]
+name = "ndarray_threaded_window"
+dependencies = ["numpy>=1.24.1"]
+
+[build-system]
+requires = ["maturin>=0.14,<0.15"]
+build-backend = "maturin"
