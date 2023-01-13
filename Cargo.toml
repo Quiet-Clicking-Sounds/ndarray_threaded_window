@@ -1,6 +1,6 @@
 [package]
 name = "ndarray_threaded_window"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Quiet-Clicking-Sounds <55921097+Quiet-Clicking-Sounds@users.noreply.github.com>"]#
 
@@ -9,22 +9,30 @@ authors = ["Quiet-Clicking-Sounds <55921097+Quiet-Clicking-Sounds@users.noreply.
 path = "src/lib.rs"
 name = "ndarray_threaded_window"
 crate-type = ["cdylib"]
+bench = false
+test = true
 
+[[bench]]
+path = "benches/bench.rs"
+name = "bench"
 
+[features]
+default = ["dep:pyo3", "dep:numpy"]
 
 
 [dependencies]
-pyo3 = {version = "0.17.3", features = ["extension-module"]}
-ndarray=  "0.15.6"
-numpy = "0.17.2"
-num-traits = "0.2.15"
+pyo3 = {version = "0.17.3", features = ["extension-module"], optional=true}
+numpy = { version = "0.17.2" , optional=true}
+ndarray = { version = "0.15.6" }
+num-traits = { version = "0.2.15" }
 
 
 [dev-dependencies]
 rand = "0.8.5"
+bencher = "0.1.5"
 
 [profile.dev]
-opt-level = 3
+opt-level = 1
 
 [profile.release]
 opt-level = 3
