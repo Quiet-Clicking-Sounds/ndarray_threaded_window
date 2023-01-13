@@ -10,3 +10,4 @@ Cargo.lock
 !/target/wheels
 /python/ndarray_threaded_window/*.pyd
 /examples/no_pub.py
+/examples/speed_tests.py
