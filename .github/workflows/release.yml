@@ -1,0 +1,5 @@
+- name: maturin-action
+- uses: PyO3/maturin-action@v1.35.0
+  with:
+    command: build
+    args: --release
