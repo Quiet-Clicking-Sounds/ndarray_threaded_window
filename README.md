@@ -14,8 +14,23 @@
 
 </table>
 
+### Python usage
+
+```python
+import numpy # numpy arrays are used to send and receive data from ntw
+import ndarray_threaded_window as ntw
+import imageio.v3 as iio  # for importing images
+
+# load images
+image: numpy.ndarray = iio.imread('img/H5.jpg')
+
+modified_image: numpy.ndarray = ntw.apply_window(image, ntw.fn_fast_std, [5,5,1])
+
+iio.imwrite('img/H5-fast_std.jpg', modified_image)
+```
+
 ### Rounding note: 
-rounding does differ between the numpy implementation of [int(np.std)] and [ntw.func_fast_population_std]
+rounding does differ between the numpy implementation of `int(np.std)` and `ntw.func_fast_population_std`
 
 ## Build
 requires python environment, `maturin` python package, and rust nightly
@@ -52,23 +67,9 @@ func_fast_population_std  time: 0.370s | window time: 0.310ms
 func_fast_sample_std      time: 0.378s | window time: 0.316ms
 
 ```
-note: the above was run on a Ryzen 5 3600x @ 4.2GHz with 32bg DDR4 @ 3200 MHz 
-
-### Python usage
-
-```python
-import numpy # numpy arrays are used to send and receive data from ntw
-import ndarray_threaded_window as ntw
-import imageio.v3 as iio  # for importing images
-
-# load images
-image: numpy.ndarray = iio.imread('img/H5.jpg')
-
-modified_image: numpy.ndarray = ntw.apply_window(image, ntw.fn_fast_std, [5,5,1])
-
-iio.imwrite('img/H5-fast_std.jpg', modified_image)
-```
+the above was run on a Ryzen 5 3600x @ 4.2GHz with 32bg DDR4 @ 3200 MHz 
 
 
-### install from whl
-for amd64 systems wheels have been generated, [/target/wheels](/target/wheels)
+
+### Python Installation
+See [releases](https://github.com/Quiet-Clicking-Sounds/ndarray_threaded_window/releases)

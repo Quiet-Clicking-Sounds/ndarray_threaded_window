@@ -1,4 +1,4 @@
-use integer_conversion_traits::NumConv;
+use integer_conversion_traits::IntConv;
 use window_functions::WinFunc;
 
 use crate::array_shape_traits::{get_proc_count, set_thread_env_var, WinSh};
@@ -85,7 +85,7 @@ mod python_lib {
         window: &[usize],
     ) -> Array<T, IxDyn>
     where
-        T: NumConv + Clone + Copy + Send + 'static,
+        T: IntConv + Clone + Copy + Send + 'static,
     {
         let binding = a.dim().clone();
         let sl = binding.slice();
