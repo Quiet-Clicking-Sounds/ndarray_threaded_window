@@ -2,10 +2,11 @@ use std::sync::mpsc;
 use std::thread;
 
 use ndarray::{Array, ArrayView, AssignElem, Dimension, RemoveAxis};
+use num_traits::Zero;
 
 
 use crate::array_shape_traits::{ArraySplitter,WinSh};
-use crate::integer_conversion_traits::NumConv;
+use crate::integer_conversion_traits::IntConv;
 use crate::window_functions::WinFunc;
 
 
@@ -24,7 +25,7 @@ use crate::window_functions::WinFunc;
 /// ```
 pub fn apply_over_any_window<T, D>(arr: Array<T, D>, win_size: D, func: WinFunc<T, D>) -> Array<T, D>
 where
-    T: NumConv + Clone,
+    T: Clone + Zero,
     D: Dimension + WinSh,
 {
     let new_size = arr.raw_dim().size_sub_shape(&win_size);
@@ -66,7 +67,7 @@ pub fn thread_over_any_window<T, D>(
     func: WinFunc<T, D>,
 ) -> Array<T, D>
 where
-    T:  NumConv + Clone + Copy + Send + 'static,
+    T: Clone + Zero + Copy + Send + 'static,
     D: Dimension + WinSh + RemoveAxis + Clone + Copy + 'static,
 {
     let splitter = ArraySplitter::new(&input_array, &win_size);
@@ -110,7 +111,7 @@ mod tests {
         apply_over_any_window, thread_over_any_window
     };
     use crate::window_functions::func_fast_std;
-    use crate::integer_conversion_traits::NumConv;
+    use crate::integer_conversion_traits::IntConv;
 
     const SL1: usize = 24;
     const SL2: usize = 60;
@@ -119,25 +120,25 @@ mod tests {
     const SL5: usize = 3;
     const WIN_SHAPE: &[usize] = &[2, 4, 3, 2, 1];
 
-    fn gen1<T: NumConv + BitXor>() -> Array<T, Ix1> {
+    fn gen1<T: IntConv + BitXor>() -> Array<T, Ix1> {
         Array::from_shape_fn(SL1, |a| T::from_f64(a as f64))
     }
 
-    fn gen2<T: NumConv + BitXor>() -> Array<T, Ix2> {
+    fn gen2<T: IntConv + BitXor>() -> Array<T, Ix2> {
         Array::from_shape_fn((SL1, SL2), |(a, b)| T::from_f64((a ^ b) as f64))
     }
 
-    fn gen3<T: NumConv + BitXor>() -> Array<T, Ix3> {
+    fn gen3<T: IntConv + BitXor>() -> Array<T, Ix3> {
         Array::from_shape_fn((SL1, SL2, SL3), |(a, b, c)| T::from_f64((a ^ b ^ c) as f64))
     }
 
-    fn gen4<T: NumConv + BitXor>() -> Array<T, Ix4> {
+    fn gen4<T: IntConv + BitXor>() -> Array<T, Ix4> {
         Array::from_shape_fn((SL1, SL2, SL3, SL4), |(a, b, c, d)| {
             T::from_f64((a ^ b ^ c ^ d) as f64)
         })
     }
 
-    fn gen5<T: NumConv + BitXor>() -> Array<T, Ix5> {
+    fn gen5<T: IntConv + BitXor>() -> Array<T, Ix5> {
         Array::from_shape_fn((SL1, SL2, SL3, SL4, SL5), |(e, a, b, c, d)| {
             T::from_f64((a ^ b ^ c ^ d ^ e) as f64)
         })
